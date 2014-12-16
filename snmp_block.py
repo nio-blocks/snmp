@@ -4,9 +4,11 @@
 
 """
 from enum import Enum
+from nio.common.block.attribute import Output
 from nio.common.block.base import Block
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.common.signal.base import Signal
+from nio.common.signal.status import StatusSignal, SignalStatus
 from nio.metadata.properties import TimeDeltaProperty, BoolProperty, \
     SelectProperty, ListProperty
 from nio.metadata.properties.int import IntProperty
@@ -15,6 +17,7 @@ from nio.modules.scheduler import Job
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 
+@Output("status")
 class BaseSNMPBlock(Block):
 
     """ A base block implementing a SNMP Manager
@@ -42,6 +45,8 @@ class BaseSNMPBlock(Block):
         self._job = None
 
     def _request_GET(self):
+        """ Executes SNMP GET request
+        """
         errorIndication, errorStatus, errorIndex, varBinds = \
             self._cmdGen.getCmd(self._data,
                                 self._transport,
@@ -49,26 +54,54 @@ class BaseSNMPBlock(Block):
                                 lookupNames=self.lookup_names,
                                 lookupValues=self.lookup_values)
 
-        # Check for errors and print out results
+        # Check for errors
         if errorIndication:
-            self._logger.error("SNMP GET Error: %s" % errorIndication)
-            self.notify_signals([Signal({"error": errorIndication})])
+            self._handle_error(errorIndication)
         else:
+            # Agent report Error Status ?
             if errorStatus:
-                error = ('%s at %s' % (
-                    errorStatus.prettyPrint(),
-                    errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-                    )
-                )
-                self._logger.error("SNMP GET Error: %s" % error)
-                self.notify_signals([Signal({"error": error})])
+                self._handle_error_status(errorStatus, errorIndex, varBinds)
             else:
-                signal = {}
-                for name, val in varBinds:
-                    signal[name.prettyPrint()] = val.prettyPrint()
-                self.notify_signals([Signal(signal)])
+                self._handle_data(varBinds)
+
+    def _handle_error(self, error):
+        """ Handles errors that put the block in a "Error" status
+        """
+        self._logger.error("SNMP GET Error: %s" % error)
+        self.notify_management_signal(StatusSignal(SignalStatus.error, error))
+
+    def _handle_error_status(self, errorStatus, errorIndex, varBinds):
+        """ Handles status errors that put the block in a "Warning" status
+        and notifies in "status" output
+        """
+        error = ('%s at %s' % (
+            errorStatus.prettyPrint(),
+            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
+            )
+        )
+        self._logger.error("SNMP GET Error: %s" % error)
+        self.notify_signals([Signal({"error": error})], "status")
+        # also report this on the management channel as warning
+        self.notify_management_signal(StatusSignal(SignalStatus.warning,
+                                                   error))
+        #TODO: other values returned in other index other than errorIndex
+        #TODO: have valid values ?
+
+    def _handle_data(self, varBinds):
+        """ Notify signals in the "default" output
+        """
+        # TODO: Is the status change handled
+        # by BlockRouter implicitly or a call to notify_management_signal(ok)
+        # needs to be done here ??
+        signal = {}
+        for name, val in varBinds:
+            signal[name.prettyPrint()] = val.prettyPrint()
+        self.notify_signals([Signal(signal)])
 
     def configure(self, context):
+        """ Configure SNMP by creating data and transport for future
+         GET requests
+        """
         super().configure(context)
         self._data = self._create_data()
         self._transport = cmdgen.UdpTransportTarget(
@@ -104,5 +137,7 @@ class SNMPBlock(BaseSNMPBlock):
                                   default=SNMPType.SMIv2)
 
     def _create_data(self):
+        """ SNMP v1 and v2 use CommunityData
+        """
         return cmdgen.CommunityData(self.community,
                                     mpModel=self.snmp_version.value)
