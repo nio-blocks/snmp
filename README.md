@@ -19,6 +19,7 @@ Properties
 Dependencies
 ------------
 
+  pysnmp module
 
 Commands
 --------
