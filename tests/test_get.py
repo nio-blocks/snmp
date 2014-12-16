@@ -3,7 +3,7 @@ from unittest2 import skip
 from snmp_block import SNMPBlock
 from pysnmp import debug
 
-
+@skip
 class TestSNMPGet(NIOBlockTestCase):
 
     def my_notify_signals(self, signals, output_id='default'):
