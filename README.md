@@ -14,7 +14,7 @@ Properties
 -  **retries**: Number of retries when executing a SNMP GET. Defaults to 5 
 -  **lookup_names**: Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to False 
 -  **lookup_values**: Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to False 
--  **oids**: List of oids separated by ,. Example "1.3.6.1.2.1.31.1.1.1.10.2, 1.3.6.1.2.1.31.1.1.1.6.2" 
+-  **oids**: List of oids . Example ["1.3.6.1.2.1.31.1.1.1.10.2", "1.3.6.1.2.1.31.1.1.1.6.2"] 
 
 Dependencies
 ------------

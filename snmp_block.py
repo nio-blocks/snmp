@@ -8,7 +8,7 @@ from nio.common.block.base import Block
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.common.signal.base import Signal
 from nio.metadata.properties import TimeDeltaProperty, BoolProperty, \
-    SelectProperty
+    SelectProperty, ListProperty
 from nio.metadata.properties.int import IntProperty
 from nio.metadata.properties.string import StringProperty
 from nio.modules.scheduler import Job
@@ -25,7 +25,6 @@ class BaseSNMPBlock(Block):
 
     agent_host = StringProperty(title="SNMP Agent Url", default='127.0.0.1')
     agent_port = IntProperty(title="SNMP Agent Port", default=161)
-    oids = StringProperty(title="List of OIDs")
     pool_interval = TimeDeltaProperty(
         title='Pooling interval', default={"seconds": 10})
     timeout = TimeDeltaProperty(title='SNMP GET Timeout',
@@ -33,6 +32,7 @@ class BaseSNMPBlock(Block):
     retries = IntProperty(title="SNMP GET Retries", default=5)
     lookup_names = BoolProperty(title="Look up OId names", default=False)
     lookup_values = BoolProperty(title="Look up OId values", default=False)
+    oids = ListProperty(str, title="List of OID")
 
     def __init__(self):
         super().__init__()
@@ -42,11 +42,10 @@ class BaseSNMPBlock(Block):
         self._job = None
 
     def _request_GET(self):
-        oids = self.oids.split(',')
         errorIndication, errorStatus, errorIndex, varBinds = \
             self._cmdGen.getCmd(self._data,
                                 self._transport,
-                                *oids,
+                                *self.oids,
                                 lookupNames=self.lookup_names,
                                 lookupValues=self.lookup_values)
 
@@ -64,7 +63,6 @@ class BaseSNMPBlock(Block):
                 self._logger.error("SNMP GET Error: %s" % error)
                 self.notify_signals([Signal({"error": error})])
             else:
-                # TODO, Add check for DEBUG flag
                 signal = {}
                 for name, val in varBinds:
                     signal[name.prettyPrint()] = val.prettyPrint()
@@ -81,13 +79,13 @@ class BaseSNMPBlock(Block):
     def start(self):
         super().start()
         self._job = Job(self._request_GET, self.pool_interval, True)
-        self._logger.info("SNMP Manager polling started")
+        self._logger.info("SNMP polling started")
 
     def stop(self):
         if self._job:
             self._job.cancel()
             self._job = None
-        self._logger.info("SNMP Manager polling stopped")
+        self._logger.info("SNMP polling stopped")
         super().stop()
 
 

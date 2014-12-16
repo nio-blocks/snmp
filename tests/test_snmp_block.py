@@ -26,10 +26,10 @@ class TestSNMPBlock(NIOBlockTestCase):
         block = SNMPBlock()
         block._create_data = MagicMock()
         self.configure_block(block, {
-            "agent_host": "65.112.205.130",
+            "agent_host": "127.0.0.1",
             "agent_port": 161,
-            "community": "NIOLAB",
-            "oids": "1.3.6.1.2.1.31.1.1.1.6.2",
+            "community": "public",
+            "oids": ["1.3.6.1.2.1.31.1.1.1.6.2"],
             "lookup_names": True
         })
         block._create_data.assert_called_once_with()
@@ -45,7 +45,7 @@ class TestSNMPBlock(NIOBlockTestCase):
             "agent_port": 161,
             "community": "public",
             "pool_interval": {"seconds": 1},
-            "oids": "1.3.6.1.2.1.31.1.1.1.6.2",
+            "oids": ["1.3.6.1.2.1.31.1.1.1.6.2"],
             "lookup_names": True
         })
         block.start()
@@ -62,11 +62,11 @@ class TestSNMPBlock(NIOBlockTestCase):
             "agent_port": 161,
             "community": "public",
             "pool_interval": {"seconds": 1},
-            "oids": "1.3.6.1.2.1.31.1.1.1.10.2,"
-                    "1.3.6.1.2.1.31.1.1.1.6.2,"
-                    "1.3.6.1.2.1.1.3.0,"
-                    "1.3.6.1.4.1.12356.101.14.5.1.15,"
-                    "1.3.6.1.4.1.12356.101.10.114.3.1.4",
+            "oids": ["1.3.6.1.2.1.31.1.1.1.10.2",
+                     "1.3.6.1.2.1.31.1.1.1.6.2",
+                     "1.3.6.1.2.1.1.3.0",
+                     "1.3.6.1.4.1.12356.101.14.5.1.15",
+                     "1.3.6.1.4.1.12356.101.10.114.3.1.4"],
             "lookup_names": True
         })
         block._cmdGen.getCmd = MagicMock(return_value=(False, False, 0, {}))
