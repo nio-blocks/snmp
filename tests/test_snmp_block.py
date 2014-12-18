@@ -3,7 +3,7 @@ from time import sleep
 from unittest.mock import MagicMock
 from nio.util.support.block_test_case import NIOBlockTestCase
 from pysnmp.entity.rfc3413.oneliner.target import UdpTransportTarget
-from snmp_block import SNMPBlock
+from snmp_block import SNMPBlock, BaseSNMPBlock
 
 
 class TestSNMPBlock(NIOBlockTestCase):
@@ -81,4 +81,7 @@ class TestSNMPBlock(NIOBlockTestCase):
             "1.3.6.1.4.1.12356.101.10.114.3.1.4",
             lookupNames=True, lookupValues=False)
 
-
+    def test_create_data(self):
+        block = BaseSNMPBlock()
+        with self.assertRaises(NotImplementedError):
+            block._create_data()
