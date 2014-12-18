@@ -44,6 +44,13 @@ class BaseSNMPBlock(Block):
         self._transport = None
         self._job = None
 
+    def _create_data(self):
+        """ Method to be override in inherited classes
+          Returns the data required by cmdGen for executing SNMP GET
+          operations on an Agent
+        """
+        raise NotImplementedError()
+
     def _request_GET(self):
         """ Executes SNMP GET request
         """
