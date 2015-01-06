@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from nio.common.signal.status import StatusSignal, SignalStatus
 from nio.util.support.block_test_case import NIOBlockTestCase
 from pysnmp.entity.rfc3413.oneliner.target import UdpTransportTarget
-from snmp_block import SNMPBlock, BaseSNMPBlock
+from ..snmp_block import SNMPBlock, BaseSNMPBlock
 from pysnmp.proto.api.v2c import OctetString
 from pysnmp.proto.rfc1902 import ObjectName
 
