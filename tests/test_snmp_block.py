@@ -24,11 +24,10 @@ class TestSNMPBlock(NIOBlockTestCase):
         self.assertFalse(block.lookup_names)
         self.assertFalse(block.lookup_names)
 
-    def configure_block_with_oids(self, block, oids, exclude_existing=True):
+    def configure_block_with_oids(self, block, oids):
         self.configure_block(block, {
             "agent_host": "127.0.0.1",
             "agent_port": 161,
-            "exclude_existing": exclude_existing,
             "community": "public",
             "oids": [{'oid': oid} for oid in oids],
             "lookup_names": True
@@ -43,17 +42,6 @@ class TestSNMPBlock(NIOBlockTestCase):
         self.assertEqual(5, block._transport.retries)
         self.assertEqual(1, block._transport.timeout)
 
-    def test_request_made_with_signal(self):
-        block = SNMPBlock()
-        block.execute_request = MagicMock()
-        my_signal = Signal({"test_key": "test_val"})
-        my_oid = ["1.3.6.1.2.1.31.1.1.1.6.2"]
-        self.configure_block_with_oids(block, my_oid, False)
-        block.start()
-        block.process_signals([my_signal])
-        block.execute_request.assert_called_with(my_oid, my_signal)
-        block.stop()
-
     def test_request_made(self):
         block = SNMPBlock()
         block.execute_request = MagicMock()
@@ -61,7 +49,7 @@ class TestSNMPBlock(NIOBlockTestCase):
         self.configure_block_with_oids(block, my_oid)
         block.start()
         block.process_signals([Signal()])
-        block.execute_request.assert_called_with(my_oid, None)
+        block.execute_request.assert_called_with(my_oid)
         block.stop()
 
     def test_request_get(self):
