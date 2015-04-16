@@ -1,7 +1,10 @@
 """
+::::::::::::::::::::::::::
+  NOTE
 
-  SNMP Block
+  This block file is deprecated - edit the base block file to make changes
 
+::::::::::::::::::::::::::
 """
 from enum import Enum
 from nio.common.block.attribute import Output
@@ -13,6 +16,7 @@ from nio.metadata.properties import TimeDeltaProperty, BoolProperty, \
     SelectProperty, ListProperty
 from nio.metadata.properties.int import IntProperty
 from nio.metadata.properties.string import StringProperty
+from nio.metadata.properties.version import VersionProperty
 from nio.modules.scheduler import Job
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
@@ -36,6 +40,7 @@ class BaseSNMPBlock(Block):
     lookup_names = BoolProperty(title="Look up OId names", default=False)
     lookup_values = BoolProperty(title="Look up OId values", default=False)
     oids = ListProperty(str, title="List of OID")
+    version = VersionProperty('0.1.0')
 
     def __init__(self):
         super().__init__()
@@ -83,27 +88,36 @@ class BaseSNMPBlock(Block):
         """
         error = ('%s at %s' % (
             errorStatus.prettyPrint(),
-            errorIndex and varBinds[int(errorIndex)-1][0] or '?'
-            )
+            errorIndex and varBinds[int(errorIndex) - 1][0] or '?'
+        )
         )
         self._logger.error("SNMP GET Error: %s" % error)
         self.notify_signals([Signal({"error": error})], "status")
         # also report this on the management channel as warning
         self.notify_management_signal(StatusSignal(SignalStatus.warning,
                                                    error))
-        #TODO: other values returned in other index other than errorIndex
-        #TODO: have valid values ?
+        # TODO: other values returned in other index other than errorIndex
+        # TODO: have valid values ?
 
-    def _handle_data(self, varBinds):
+    def _handle_data(self, varBinds, starting_signal):
         """ Notify signals in the "default" output
         """
         # TODO: Is the status change handled
         # by BlockRouter implicitly or a call to notify_management_signal(ok)
         # needs to be done here ??
-        signal = {}
-        for name, val in varBinds:
-            signal[name.prettyPrint()] = val.prettyPrint()
-        self.notify_signals([Signal(signal)])
+        for result in varBinds:
+            if isinstance(result, tuple):
+                self._enrich_signal(starting_signal, result)
+            else:
+                for inner_tuple in result:
+                    self._enrich_signal(starting_signal, inner_tuple)
+        self.notify_signals([starting_signal])
+
+    def _enrich_signal(self, signal, result_tuple):
+        setattr(
+            signal,
+            result_tuple[0].prettyPrint(),
+            result_tuple[1].prettyPrint())
 
     def configure(self, context):
         """ Configure SNMP by creating data and transport for future
@@ -136,12 +150,18 @@ class SNMPType(Enum):
 
 @Discoverable(DiscoverableType.block)
 class SNMPBlock(BaseSNMPBlock):
+
     """ SNMP block supporting SNMP v1 and v2
 
     """
     community = StringProperty(title="Community", default='public')
     snmp_version = SelectProperty(SNMPType, title="SNMP version",
                                   default=SNMPType.SMIv2)
+
+    def configure(self, context):
+        super().configure(context)
+        self._logger.warning("THIS BLOCK IS DEPRECATED")
+        self._logger.warning("Consider using the SNMPGet or SNMPWalk blocks")
 
     def _create_data(self):
         """ SNMP v1 and v2 use CommunityData
