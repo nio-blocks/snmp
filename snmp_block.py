@@ -34,6 +34,8 @@ class BaseSNMPBlock(Block):
     timeout = TimeDeltaProperty(title='SNMP GET Timeout',
                                 default={"seconds": 1})
     retries = IntProperty(title="SNMP GET Retries", default=5)
+    exclude_existing = BoolProperty(
+        title="Exclude Existing Values", default=False)
     lookup_names = BoolProperty(title="Look up OId names", default=False)
     lookup_values = BoolProperty(title="Look up OId values", default=False)
     oids = ListProperty(OIDProperty, title="List of OID")
@@ -64,10 +66,11 @@ class BaseSNMPBlock(Block):
                     self._logger.exception(
                         "Could not determine OID from {}".format(oid))
 
+            starting_signal = None if self.exclude_existing else signal
             if valid_oids:
-                self.execute_request(valid_oids)
+                self.execute_request(valid_oids, starting_signal)
 
-    def execute_request(self, oids):
+    def execute_request(self, oids, starting_signal=None):
         """ Executes SNMP GET request
         """
         errorIndication, errorStatus, errorIndex, varBinds = \
@@ -80,12 +83,12 @@ class BaseSNMPBlock(Block):
         # Check for errors
         if errorIndication:
             self._handle_error(errorIndication)
+        elif errorStatus:
+            self._handle_error_status(errorStatus, errorIndex, varBinds)
+        elif starting_signal:
+            self._handle_data(varBinds, starting_signal)
         else:
-            # Agent report Error Status ?
-            if errorStatus:
-                self._handle_error_status(errorStatus, errorIndex, varBinds)
-            else:
-                self._handle_data(varBinds)
+            self._handle_data(varBinds, Signal())
 
     def _handle_error(self, error):
         """ Handles errors that put the block in a "Error" status
