@@ -74,7 +74,7 @@ class BaseSNMPBlock(Block):
             if errorStatus:
                 self._handle_error_status(errorStatus, errorIndex, varBinds)
             else:
-                self._handle_data(varBinds)
+                self._handle_data(varBinds, Signal())
 
     def _handle_error(self, error):
         """ Handles errors that put the block in a "Error" status
