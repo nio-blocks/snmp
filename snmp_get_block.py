@@ -42,12 +42,12 @@ class SNMPGet(SNMPBase):
 
         return varBinds
 
-    def _handle_data(self, varBinds, starting_signal):
+    def _handle_data(self, var_binds, starting_signal):
         """ Notify signals in the "default" output """
         # TODO: Is the status change handled
         # by BlockRouter implicitly or a call to notify_management_signal(ok)
         # needs to be done here ??
-        for result in varBinds:
+        for result in var_binds:
             self._enrich_signal(starting_signal, result)
 
         self.notify_signals([starting_signal])

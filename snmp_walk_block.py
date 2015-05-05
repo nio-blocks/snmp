@@ -42,10 +42,10 @@ class SNMPWalk(SNMPBase):
 
         return varBinds
 
-    def _handle_data(self, varBinds, starting_signal):
+    def _handle_data(self, var_binds, starting_signal):
         """ Notify signals in the "default" output """
 
-        for result in varBinds:
+        for result in var_binds:
             for inner_tuple in result:
                 self._enrich_signal(starting_signal, inner_tuple)
 

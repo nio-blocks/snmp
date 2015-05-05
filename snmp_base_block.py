@@ -36,13 +36,13 @@ class SNMPBase(Block):
 
     agent_host = StringProperty(title="SNMP Agent Url", default='127.0.0.1')
     agent_port = IntProperty(title="SNMP Agent Port", default=161)
-    timeout = TimeDeltaProperty(title='SNMP GET Timeout',
+    timeout = TimeDeltaProperty(title='Request Timeout',
                                 default={"seconds": 1})
-    retries = IntProperty(title="SNMP GET Retries", default=5)
+    retries = IntProperty(title="SNMP Retries", default=5)
     exclude_existing = BoolProperty(
         title="Exclude Existing Values", default=False)
-    lookup_names = BoolProperty(title="Look up OId names", default=False)
-    lookup_values = BoolProperty(title="Look up OId values", default=False)
+    lookup_names = BoolProperty(title="Look up OID names", default=False)
+    lookup_values = BoolProperty(title="Look up OID values", default=False)
     oids = ListProperty(OIDProperty, title="List of OID")
     version = VersionProperty('0.2.0')
 
@@ -61,7 +61,7 @@ class SNMPBase(Block):
         self._data = self._create_data()
         self._transport = cmdgen.UdpTransportTarget(
             (self.agent_host, self.agent_port),
-            timeout=self.timeout.seconds,
+            timeout=self.timeout.total_seconds(),
             retries=self.retries)
 
     def process_signals(self, signals, input_id='default'):
@@ -83,7 +83,7 @@ class SNMPBase(Block):
         """ Executes SNMP GET request
         """
         try:
-            result = self.make_snmp_request(oids)
+            result = self._make_snmp_request(oids)
         except SNMPStatusException:
             # TODO: Make this output on status ouptut
             self._logger.exception("Error status returned")
@@ -102,11 +102,11 @@ class SNMPBase(Block):
         """
         raise NotImplementedError()
 
-    def make_snmp_request(self, oids):
+    def _make_snmp_request(self, oids):
         """ Override this in the child block to make the proper request """
         raise NotImplementedError()
 
-    def _handle_data(self, varBinds, starting_signal):
+    def _handle_data(self, var_binds, starting_signal):
         """ Override this in the child block to make the proper request """
         raise NotImplementedError()
 
