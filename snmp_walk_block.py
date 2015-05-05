@@ -2,7 +2,7 @@ from enum import Enum
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.metadata.properties import SelectProperty, StringProperty
-from .snmp_base_block import SNMPBase, SNMPStatusException, SNMPException
+from .snmp_base_block import SNMPBase
 
 
 class SNMPType(Enum):
@@ -26,21 +26,13 @@ class SNMPWalk(SNMPBase):
         return cmdgen.CommunityData(
             self.community, mpModel=self.snmp_version.value)
 
-    def make_snmp_request(self, oids):
-        errorIndication, errorStatus, errorIndex, varBinds = \
-            self._cmdGen.nextCmd(self._data,
-                                 self._transport,
-                                 *oids,
-                                 lookupNames=self.lookup_names,
-                                 lookupValues=self.lookup_values)
-
-        # Check for errors
-        if errorIndication:
-            raise SNMPException(errorIndication)
-        elif errorStatus:
-            raise SNMPStatusException(errorStatus, errorIndex)
-
-        return varBinds
+    def _execute_snmp_request(self, oids):
+        return self._cmdGen.nextCmd(
+            self._data,
+            self._transport,
+            *oids,
+            lookupNames=self.lookup_names,
+            lookupValues=self.lookup_values)
 
     def _handle_data(self, var_binds, starting_signal):
         """ Notify signals in the "default" output """

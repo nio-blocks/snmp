@@ -13,7 +13,10 @@ from nio.metadata.properties.version import VersionProperty
 
 
 class OIDProperty(PropertyHolder):
-    oid = ExpressionProperty(title='OID', default='{{ $oid }}')
+    oid = ExpressionProperty(
+        title='OID',
+        default='{{ $oid }}',
+        attr_default=AttributeError)
 
 
 class SNMPStatusException(Exception):
@@ -84,16 +87,18 @@ class SNMPBase(Block):
         """
         try:
             result = self._make_snmp_request(oids)
+
+            if starting_signal:
+                self._handle_data(result, starting_signal)
+            else:
+                self._handle_data(result, Signal())
         except SNMPStatusException:
             # TODO: Make this output on status ouptut
             self._logger.exception("Error status returned")
         except SNMPException:
             self._logger.exception("Error returned")
-
-        if starting_signal:
-            self._handle_data(result, starting_signal)
-        else:
-            self._handle_data(result, Signal())
+        except:
+            self._logger.exception("Unhandled exception in SNMP")
 
     def _create_data(self):
         """ Method to be override in inherited classes
@@ -103,6 +108,19 @@ class SNMPBase(Block):
         raise NotImplementedError()
 
     def _make_snmp_request(self, oids):
+        """ Execute the request and handle errors or responses """
+        error_indication, error_status, error_index, var_binds = \
+            self._execute_snmp_request(oids)
+
+        # Check for errors
+        if error_indication:
+            raise SNMPException(error_indication)
+        elif error_status:
+            raise SNMPStatusException(error_status, error_index)
+
+        return var_binds
+
+    def _execute_snmp_request(self, oids):
         """ Override this in the child block to make the proper request """
         raise NotImplementedError()
 
