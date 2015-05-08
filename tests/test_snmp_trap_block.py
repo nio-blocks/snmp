@@ -26,7 +26,7 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
         self.assertEqual(block.port, 9999)
         block._register_transports.assert_called_once()
 
-    @patch('..snmp_trap_block.TrapDispatcherThread')
+    @patch(SNMPTrapBlock.__module__ + '.TrapDispatcherThread')
     def test_start_stop(self, thread_mock):
 
         class DispatcherMyThread(TrapDispatcherThread):
@@ -42,14 +42,14 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
 
         block.start()
         self.assertIsNotNone(block._dispatcher_thread)
-        my_thread.start.assert_called_once()
+        self.assertTrue(my_thread.start.called)
         self.assertFalse(my_thread.stop.called)
         self.assertFalse(my_thread.join.called)
 
         block.stop()
         self.assertIsNone(block._dispatcher_thread)
-        my_thread.stop.assert_called_once()
-        my_thread.join.assert_called_once()
+        self.assertTrue(my_thread.stop.called)
+        self.assertTrue(my_thread.join.called)
 
     def test_on_trap(self):
         """ Provides coverage for _on_trap method
