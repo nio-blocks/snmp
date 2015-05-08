@@ -1,20 +1,20 @@
 from unittest.mock import MagicMock, patch
 from pysnmp.proto.error import ProtocolError
 from nio.util.support.block_test_case import NIOBlockTestCase
-from ..snmp_trap_block import SNMPTrapBlock, TrapDispatcherThread
+from ..snmp_trap_block import SNMPTrap, TrapDispatcherThread
 
 
 class TestSNMPTrapBlock(NIOBlockTestCase):
 
     def test_init(self):
-        block = SNMPTrapBlock()
+        block = SNMPTrap()
         self.assertIsNone(block._transport_dispatcher)
         self.assertIsNone(block._dispatcher_thread)
         self.assertEqual("127.0.0.1",block.ip_address)
         self.assertEqual(162,block.port)
 
     def test_configure(self):
-        block = SNMPTrapBlock()
+        block = SNMPTrap()
         block._register_transports = MagicMock()
 
         self.configure_block(block, {
@@ -26,7 +26,7 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
         self.assertEqual(block.port, 9999)
         block._register_transports.assert_called_once()
 
-    @patch(SNMPTrapBlock.__module__ + '.TrapDispatcherThread')
+    @patch(SNMPTrap.__module__ + '.TrapDispatcherThread')
     def test_start_stop(self, thread_mock):
 
         class DispatcherMyThread(TrapDispatcherThread):
@@ -36,7 +36,7 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
                 self.stop = MagicMock()
                 self.join = MagicMock()
 
-        block = SNMPTrapBlock()
+        block = SNMPTrap()
         my_thread = DispatcherMyThread(None, None)
         thread_mock.return_value = my_thread
 
@@ -55,7 +55,7 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
         """ Provides coverage for _on_trap method
         """
 
-        block = SNMPTrapBlock()
+        block = SNMPTrap()
         block._on_trap(None, (1,3,6,1,1), ('127.0.0.1', 49999), None)
         self.assert_num_signals_notified(0, block, "trap")
 
@@ -81,7 +81,7 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
         """ Provides coverage for _get_var_bind_data method
         """
 
-        block = SNMPTrapBlock()
+        block = SNMPTrap()
 
         from pysnmp.proto.rfc1905 import _BindValue
         from pysnmp.proto.rfc1902 import ObjectSyntax, TimeTicks

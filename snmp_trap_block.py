@@ -21,7 +21,7 @@ from . import oid_parser
 
 @Output("trap")
 @Discoverable(DiscoverableType.block)
-class SNMPTrapBlock(Block):
+class SNMPTrap(Block):
 
     ip_address = StringProperty(title='IP Address', default='127.0.0.1')
     port = IntProperty(title='Port', default=162)
