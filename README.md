@@ -45,3 +45,46 @@ Output
     With lookup:
         {'SNMPv2-SMI::mib-2."31.1.1.1.6.2"': '227651521193'}
         {'SNMPv2-MIB::sysDescr."0"': "b'SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'"}
+
+----------------
+
+SNMPTrapBlock
+====
+
+This block provides a SNMP Trap catcher that runs inside nio.
+
+
+Properties
+----------
+
+-  **IP Address**: The IP address this block binds to, this address will be used by Agent to send traps to. Defaults to '127.0.0.1'.
+-  **Port**: The port Agent will be connecting to. Defaults to 162
+
+Dependencies
+------------
+
+  pysnmp module
+
+Commands
+--------
+
+
+Input
+-----
+
+
+Output
+------
+
+  Signals with trap data attributes
+
+  Example of Signal:
+  {'var-binds':
+    {'1.3.6.1.3.6.1.1': {'value': {'simple': {'string-value': b'configured'}}},
+     '1.3.6.1.3.6.1.0': {'value': {'simple': {'string-value': b'SNMPTrapService'}}},
+     '1.3.6.1.2.1.1.3.0': {'value': {'application-wide': {'timeticks-value': 206042}}},
+     '1.3.6.1.6.3.1.1.4.1.0': {'value': {'simple': {'objectID-value': '1.3.6.1.3.6.6.1'}}}
+    },
+   'transport_address': '127.0.0.1.9100',
+   'transport_domain': '1.3.6.1.6.1.1'
+  }
