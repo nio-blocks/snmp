@@ -1,5 +1,5 @@
-SNMP
-====
+SNMPGet
+=======
 
 This block provides a SNMP Manager that runs inside nio. 
 
@@ -9,17 +9,20 @@ Properties
 
 -  **agent_host**: The host IP for the SNMP Agent to which this manager will connect. Defaults to '127.0.0.1'.
 -  **agent_port**: The desired port for the Agent. Defaults to 161
--  **pool_interval**: Interval between SNMP Gets to the Agent. Defaults to 10 seconds 
 -  **timeout**: Timeout when executing a SNMP GET. Defaults to 1 second 
 -  **retries**: Number of retries when executing a SNMP GET. Defaults to 5 
+-  **exclude_existing**: Exclude existing values.
 -  **lookup_names**: Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to False 
 -  **lookup_values**: Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to False 
 -  **oids**: List of oids . Example ["1.3.6.1.2.1.31.1.1.1.10.2", "1.3.6.1.2.1.31.1.1.1.6.2"] 
+-  **community**: SNMP community. Defaults to 'public'.
+-  **snmp_version**: SNMP v1 or v2.
 
 Dependencies
 ------------
 
-  pysnmp module
+-   [pysnmp](https://pypi.python.org/pypi/pysnmp/)
+-   pysnmp n.io module
 
 Commands
 --------
@@ -48,8 +51,8 @@ Output
 
 ----------------
 
-SNMPTrapBlock
-====
+SNMPTrap
+========
 
 This block provides a SNMP Trap catcher that runs inside nio.
 
@@ -57,13 +60,22 @@ This block provides a SNMP Trap catcher that runs inside nio.
 Properties
 ----------
 
+-  **agent_host**: The host IP for the SNMP Agent to which this manager will connect. Defaults to '127.0.0.1'.
+-  **agent_port**: The desired port for the Agent. Defaults to 161
+-  **timeout**: Timeout when executing a SNMP GET. Defaults to 1 second 
+-  **retries**: Number of retries when executing a SNMP GET. Defaults to 5 
+-  **exclude_existing**: Exclude existing values.
+-  **lookup_names**: Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to False 
+-  **lookup_values**: Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to False 
+-  **oids**: List of oids . Example ["1.3.6.1.2.1.31.1.1.1.10.2", "1.3.6.1.2.1.31.1.1.1.6.2"] 
 -  **IP Address**: The IP address this block binds to, this address will be used by Agent to send traps to. Defaults to '127.0.0.1'.
 -  **Port**: The port Agent will be connecting to. Defaults to 162
 
 Dependencies
 ------------
 
-  pysnmp module
+-   [pysnmp](https://pypi.python.org/pypi/pysnmp/)
+-   pysnmp n.io module
 
 Commands
 --------
@@ -88,3 +100,43 @@ Output
    'transport_address': '127.0.0.1.9100',
    'transport_domain': '1.3.6.1.6.1.1'
   }
+
+----------------
+
+SNMPWalk
+========
+
+This block provides a SNMP walker than runs inside nio.
+
+
+Properties
+----------
+
+-  **agent_host**: The host IP for the SNMP Agent to which this manager will connect. Defaults to '127.0.0.1'.
+-  **agent_port**: The desired port for the Agent. Defaults to 161
+-  **timeout**: Timeout when executing a SNMP GET. Defaults to 1 second 
+-  **retries**: Number of retries when executing a SNMP GET. Defaults to 5 
+-  **exclude_existing**: Exclude existing values.
+-  **lookup_names**: Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to False 
+-  **lookup_values**: Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to False 
+-  **oids**: List of oids . Example ["1.3.6.1.2.1.31.1.1.1.10.2", "1.3.6.1.2.1.31.1.1.1.6.2"] 
+-  **community**: SNMP community. Defaults to 'public'.
+-  **snmp_version**: SNMP v1 or v2.
+
+Dependencies
+------------
+
+-   [pysnmp](https://pypi.python.org/pypi/pysnmp/)
+-   pysnmp n.io module
+
+Commands
+--------
+
+
+Input
+-----
+
+
+Output
+------
+TODO: Document signal output of this block.
