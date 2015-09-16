@@ -4,11 +4,6 @@ from nio.util.support.block_test_case import NIOBlockTestCase
 from ..snmp_get_block import SNMPGet
 
 
-SAMPLE_SNMP_RESPONSE = ("", False, 0, [])
-SAMPLE_ERROR_SNMP_RESPONSE = ("ERROR", False, 0, [])
-SAMPLE_ERROR_STATUS_SNMP_RESPONSE = ("", True, 123, [])
-
-
 class TestSNMPGet(NIOBlockTestCase):
 
     def test_hard_coded_oid(self):
