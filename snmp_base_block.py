@@ -1,15 +1,9 @@
-"""
-
-  SNMP Base Block
-
-"""
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from nio.common.block.base import Block
 from nio.common.signal.base import Signal
 from nio.metadata.properties import TimeDeltaProperty, BoolProperty, \
     ListProperty, IntProperty, StringProperty, \
     ExpressionProperty, PropertyHolder
-from nio.metadata.properties.version import VersionProperty
 
 
 class OIDProperty(PropertyHolder):
@@ -37,7 +31,7 @@ class SNMPBase(Block):
     publish them as signals
     """
 
-    agent_host = StringProperty(title="SNMP Agent Url", default='127.0.0.1')
+    agent_host = ExpressionProperty(title="SNMP Agent Url", default='127.0.0.1')
     agent_port = IntProperty(title="SNMP Agent Port", default=161)
     timeout = TimeDeltaProperty(title='Request Timeout',
                                 default={"seconds": 1})
@@ -47,7 +41,6 @@ class SNMPBase(Block):
     lookup_names = BoolProperty(title="Look up OID names", default=False)
     lookup_values = BoolProperty(title="Look up OID values", default=False)
     oids = ListProperty(OIDProperty, title="List of OID")
-    version = VersionProperty('0.2.0')
 
     def __init__(self):
         super().__init__()
@@ -62,10 +55,7 @@ class SNMPBase(Block):
         """
         super().configure(context)
         self._data = self._create_data()
-        self._transport = cmdgen.UdpTransportTarget(
-            (self.agent_host, self.agent_port),
-            timeout=self.timeout.total_seconds(),
-            retries=self.retries)
+        self._transport = None
 
     def process_signals(self, signals, input_id='default'):
         for signal in signals:
@@ -77,17 +67,25 @@ class SNMPBase(Block):
                 except:
                     self._logger.exception(
                         "Could not determine OID from {}".format(oid))
-
+            transport = None
+            try:
+                host = self.agent_host(signal)
+                transport = cmdgen.UdpTransportTarget(
+                    (host, self.agent_port),
+                    timeout=self.timeout.total_seconds(),
+                    retries=self.retries)
+            except:
+                self._logger.exception("Could not determine transport")
+                return
             starting_signal = None if self.exclude_existing else signal
-            if valid_oids:
-                self.execute_request(valid_oids, starting_signal)
+            if transport and valid_oids:
+                self.execute_request(transport, valid_oids, starting_signal)
 
-    def execute_request(self, oids, starting_signal=None):
+    def execute_request(self, transport, oids, starting_signal=None):
         """ Executes SNMP GET request
         """
         try:
-            result = self._make_snmp_request(oids)
-
+            result = self._make_snmp_request(transport, oids)
             if starting_signal:
                 self._handle_data(result, starting_signal)
             else:
@@ -107,17 +105,15 @@ class SNMPBase(Block):
         """
         raise NotImplementedError()
 
-    def _make_snmp_request(self, oids):
+    def _make_snmp_request(self, transport, oids):
         """ Execute the request and handle errors or responses """
         error_indication, error_status, error_index, var_binds = \
-            self._execute_snmp_request(oids)
-
+            self._execute_snmp_request(transport, oids)
         # Check for errors
         if error_indication:
             raise SNMPException(error_indication)
         elif error_status:
             raise SNMPStatusException(error_status, error_index)
-
         return var_binds
 
     def _execute_snmp_request(self, oids):
