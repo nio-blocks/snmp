@@ -46,7 +46,6 @@ class SNMPBase(Block):
         super().__init__()
         self._cmdGen = cmdgen.CommandGenerator()
         self._data = None
-        self._transport = None
         self._job = None
 
     def configure(self, context):
@@ -55,7 +54,6 @@ class SNMPBase(Block):
         """
         super().configure(context)
         self._data = self._create_data()
-        self._transport = None
 
     def process_signals(self, signals, input_id='default'):
         for signal in signals:
