@@ -29,7 +29,8 @@ class TestSNMPBlock(NIOBlockTestCase):
 
         # Send the starting signal, make sure everything was called correctly
         block.process_signals([starting_signal])
-        block._execute_snmp_request.assert_called_once_with([myOID])
+        args, kwargs = block._execute_snmp_request.call_args
+        self.assertEqual(args[1], [myOID])
         block._handle_data.assert_called_once_with([], starting_signal)
         block.stop()
 
@@ -54,7 +55,8 @@ class TestSNMPBlock(NIOBlockTestCase):
 
         # Send the starting signal, make sure everything was called correctly
         block.process_signals([starting_signal])
-        block._execute_snmp_request.assert_called_once_with([myOID])
+        args, kwargs = block._execute_snmp_request.call_args
+        self.assertEqual(args[1], [myOID])
         block._handle_data.assert_called_once_with([], starting_signal)
         block.stop()
 

@@ -2,6 +2,7 @@ from enum import Enum
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.metadata.properties import SelectProperty, StringProperty
+from nio.metadata.properties.version import VersionProperty
 from .snmp_base_block import SNMPBase
 
 
@@ -19,6 +20,7 @@ class SNMPGet(SNMPBase):
     community = StringProperty(title="Community", default='public')
     snmp_version = SelectProperty(SNMPType, title="SNMP version",
                                   default=SNMPType.SMIv2)
+    version = VersionProperty('0.3.0')
 
     def _create_data(self):
         """ SNMP v1 and v2 use CommunityData
@@ -26,10 +28,10 @@ class SNMPGet(SNMPBase):
         return cmdgen.CommunityData(
             self.community, mpModel=self.snmp_version.value)
 
-    def _execute_snmp_request(self, oids):
+    def _execute_snmp_request(self, transport, oids):
         return self._cmdGen.getCmd(
             self._data,
-            self._transport,
+            transport,
             *oids,
             lookupNames=self.lookup_names,
             lookupValues=self.lookup_values)
