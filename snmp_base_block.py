@@ -83,7 +83,9 @@ class SNMPBase(Block):
         """ Executes SNMP GET request
         """
         try:
+            self._logger.debug("Make snmp request: {}".format(transport))
             result = self._make_snmp_request(transport, oids)
+            self._logger.debug("Handle snmp response: {}".format(result))
             if starting_signal:
                 self._handle_data(result, starting_signal)
             else:
