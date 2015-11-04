@@ -4,6 +4,7 @@ from nio.common.signal.base import Signal
 from nio.metadata.properties import TimeDeltaProperty, BoolProperty, \
     ListProperty, IntProperty, StringProperty, \
     ExpressionProperty, PropertyHolder
+from .mixins.limit_lock.limit_lock import LimitLock
 
 
 class OIDProperty(PropertyHolder):
@@ -23,7 +24,7 @@ class SNMPException(Exception):
     pass
 
 
-class SNMPBase(Block):
+class SNMPBase(LimitLock, Block):
 
     """ A base block implementing a SNMP Manager
 
@@ -57,44 +58,58 @@ class SNMPBase(Block):
 
     def process_signals(self, signals, input_id='default'):
         for signal in signals:
-            valid_oids = []
-            for oid in self.oids:
-                try:
-                    next_oid = oid.oid(signal)
-                    valid_oids.append(next_oid)
-                except:
-                    self._logger.exception(
-                        "Could not determine OID from {}".format(oid))
-            transport = None
             try:
-                host = self.agent_host(signal)
-                transport = cmdgen.UdpTransportTarget(
-                    (host, self.agent_port),
-                    timeout=self.timeout.total_seconds(),
-                    retries=self.retries)
+                self._execute_with_lock(
+                    self._process_signal, 20, signal=signal)
             except:
-                self._logger.exception("Could not determine transport")
-                return
-            starting_signal = None if self.exclude_existing else signal
-            if transport and valid_oids:
-                self.execute_request(transport, valid_oids, starting_signal)
+                # Exceptions are already logged inside _process_signal
+                # Nothing special needs to happen here
+                pass
+
+    def _process_signal(self, signal):
+        valid_oids = []
+        for oid in self.oids:
+            try:
+                next_oid = oid.oid(signal)
+                valid_oids.append(next_oid)
+            except:
+                self._logger.exception(
+                    "Could not determine OID from {}".format(oid))
+        transport = None
+        try:
+            host = self.agent_host(signal)
+            transport = cmdgen.UdpTransportTarget(
+                (host, self.agent_port),
+                timeout=self.timeout.total_seconds(),
+                retries=self.retries)
+        except:
+            self._logger.exception("Could not determine transport")
+            return
+        starting_signal = None if self.exclude_existing else signal
+        if transport and valid_oids:
+            self.execute_request(transport, valid_oids, starting_signal)
 
     def execute_request(self, transport, oids, starting_signal=None):
         """ Executes SNMP GET request
         """
         try:
+            self._logger.debug("Make snmp request: {}".format(transport))
             result = self._make_snmp_request(transport, oids)
+            self._logger.debug("Handle snmp response: {}".format(result))
             if starting_signal:
                 self._handle_data(result, starting_signal)
             else:
                 self._handle_data(result, Signal())
         except SNMPStatusException:
             # TODO: Make this output on status ouptut
-            self._logger.exception("Error status returned")
+            self._logger.exception("Error status returned for transport:"
+                                   " {}".format(transport))
         except SNMPException:
-            self._logger.exception("Error returned")
+            self._logger.exception("Error returned"
+                                   " {}".format(transport))
         except:
-            self._logger.exception("Unhandled exception in SNMP")
+            self._logger.exception("Unexpected exception in SNMP"
+                                   " {}".format(transport))
 
     def _create_data(self):
         """ Method to be override in inherited classes
