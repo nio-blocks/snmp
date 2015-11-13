@@ -33,7 +33,7 @@ class SNMPBase(LimitLock, Block):
     """
 
     agent_host = ExpressionProperty(title="SNMP Agent Url", default='127.0.0.1')
-    agent_port = IntProperty(title="SNMP Agent Port", default=161)
+    agent_port = ExpressionProperty(title="SNMP Agent Port", default='161')
     timeout = TimeDeltaProperty(title='Request Timeout',
                                 default={"seconds": 1})
     retries = IntProperty(title="SNMP Retries", default=5)
@@ -78,12 +78,14 @@ class SNMPBase(LimitLock, Block):
         transport = None
         try:
             host = self.agent_host(signal)
+            port = int(self.agent_port(signal))
             transport = cmdgen.UdpTransportTarget(
-                (host, self.agent_port),
+                (host, port),
                 timeout=self.timeout.total_seconds(),
                 retries=self.retries)
         except:
-            self._logger.exception("Could not determine transport")
+            self._logger.exception(
+                "Could not determine transport for signal: {}".format(signal))
             return
         starting_signal = None if self.exclude_existing else signal
         if transport and valid_oids:
