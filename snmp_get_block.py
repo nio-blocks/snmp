@@ -20,7 +20,7 @@ class SNMPGet(SNMPBase):
     community = StringProperty(title="Community", default='public')
     snmp_version = SelectProperty(SNMPType, title="SNMP version",
                                   default=SNMPType.SMIv2)
-    version = VersionProperty('0.3.0')
+    version = VersionProperty('0.4.0')
 
     def _create_data(self):
         """ SNMP v1 and v2 use CommunityData

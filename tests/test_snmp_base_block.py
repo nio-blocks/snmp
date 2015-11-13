@@ -113,3 +113,74 @@ class TestSNMPBlock(NIOBlockTestCase):
         self.assertEqual(block._handle_data.call_count, 1)
         self.assertEqual(block._handle_data.call_args[0][0], [])
         block.stop()
+
+    def test_host_port_expression_props(self):
+        """ Test that host and port expressions props work """
+        block = SNMPBase()
+        block._create_data = MagicMock()
+        block._execute_snmp_request = MagicMock(
+            return_value=SAMPLE_SNMP_RESPONSE)
+        block._handle_data = MagicMock()
+        myOID = "1.3.6.1.2.1.31.1.1.1.6.2"
+        ip = "0.0.0.0"
+        port = 1611
+        starting_signal = Signal({
+            "ip": ip,
+            "port": port
+        })
+        self.configure_block(block, {
+            "oids": [{"oid": myOID}],
+            "agent_host": "{{ $ip }}",
+            "agent_port": "{{ $port }}"
+        })
+        block.start()
+        # Send the starting signal, make sure everything was called correctly
+        block.process_signals([starting_signal])
+        args, kwargs = block._execute_snmp_request.call_args
+        self.assertEqual(args[1], [myOID])
+        block._handle_data.assert_called_once_with([], starting_signal)
+        block.stop()
+
+    def test_invalid_host_expression_prop(self):
+        """ Test that host expression props fail gracefully """
+        block = SNMPBase()
+        block._create_data = MagicMock()
+        block.execute_request = MagicMock()
+        myOID = "1.3.6.1.2.1.31.1.1.1.6.2"
+        ip = "0.0.0.0"
+        port = 1611
+        starting_signal = Signal({
+            "ip": ip,
+            "port": port
+        })
+        self.configure_block(block, {
+            "oids": [{"oid": myOID}],
+            "agent_host": "{{ ip }}",
+        })
+        block.start()
+        # Send the starting signal, make sure everything was called correctly
+        block.process_signals([starting_signal])
+        self.assertEqual(0, block.execute_request.call_count)
+        block.stop()
+
+    def test_invalid_port_expression_prop(self):
+        """ Test that port expression props fail gracefully """
+        block = SNMPBase()
+        block._create_data = MagicMock()
+        block.execute_request = MagicMock()
+        myOID = "1.3.6.1.2.1.31.1.1.1.6.2"
+        ip = "0.0.0.0"
+        port = 1611
+        starting_signal = Signal({
+            "ip": ip,
+            "port": port
+        })
+        self.configure_block(block, {
+            "oids": [{"oid": myOID}],
+            "agent_port": "{{ port }}"
+        })
+        block.start()
+        # Send the starting signal, make sure everything was called correctly
+        block.process_signals([starting_signal])
+        self.assertEqual(0, block.execute_request.call_count)
+        block.stop()
