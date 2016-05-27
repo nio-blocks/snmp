@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
-from nio.common.signal.base import Signal
-from nio.util.support.block_test_case import NIOBlockTestCase
+from nio.signal.base import Signal
+from nio.testing.block_test_case import NIOBlockTestCase
 from ..snmp_base_block import SNMPBase
 
 

@@ -1,8 +1,8 @@
 from enum import Enum
 from pysnmp.entity.rfc3413.oneliner import cmdgen
-from nio.common.discovery import Discoverable, DiscoverableType
-from nio.metadata.properties import SelectProperty, StringProperty
-from nio.metadata.properties.version import VersionProperty
+from nio.util.discovery import discoverable
+from nio.properties import SelectProperty, StringProperty
+from nio.properties.version import VersionProperty
 from .snmp_base_block import SNMPBase
 
 
@@ -11,7 +11,7 @@ class SNMPType(Enum):
     SMIv2 = 1
 
 
-@Discoverable(DiscoverableType.block)
+@discoverable
 class SNMPGet(SNMPBase):
 
     """ SNMP block supporting SNMP v1 and v2
@@ -26,15 +26,15 @@ class SNMPGet(SNMPBase):
         """ SNMP v1 and v2 use CommunityData
         """
         return cmdgen.CommunityData(
-            self.community, mpModel=self.snmp_version.value)
+            self.community(), mpModel=self.snmp_version().value)
 
     def _execute_snmp_request(self, transport, oids):
         return self._cmdGen.getCmd(
             self._data,
             transport,
             *oids,
-            lookupNames=self.lookup_names,
-            lookupValues=self.lookup_values)
+            lookupNames=self.lookup_names(),
+            lookupValues=self.lookup_values())
 
     def _handle_data(self, var_binds, starting_signal):
         """ Notify signals in the "default" output """
