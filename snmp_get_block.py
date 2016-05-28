@@ -3,7 +3,7 @@ from pysnmp.entity.rfc3413.oneliner import cmdgen
 from nio.util.discovery import discoverable
 from nio.properties import SelectProperty, StringProperty
 from nio.properties.version import VersionProperty
-from .snmp_base_block import SNMPBase
+from .snmp_base import SNMPBase
 
 
 class SNMPType(Enum):
