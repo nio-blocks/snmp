@@ -1,9 +1,9 @@
+from nio.util.discovery import not_discoverable
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from nio.block.base import Block
 from nio.signal.base import Signal
 from nio.properties import TimeDeltaProperty, BoolProperty, \
-    ListProperty, IntProperty, StringProperty, \
-    Property, PropertyHolder
+    ListProperty, IntProperty, Property, PropertyHolder
 from nio.block.mixins.limit_lock.limit_lock import LimitLock
 
 
@@ -21,6 +21,7 @@ class SNMPException(Exception):
     pass
 
 
+@not_discoverable
 class SNMPBase(LimitLock, Block):
 
     """ A base block implementing a SNMP Manager
