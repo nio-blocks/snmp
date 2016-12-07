@@ -8,19 +8,19 @@ from pysnmp.carrier.asynsock.dgram import udp, udp6
 from pyasn1.codec.ber import decoder
 from pysnmp.proto import api
 
-from nio.common.block.attribute import Output
-from nio.common.block.base import Block
-from nio.common.signal.base import Signal
-from nio.metadata.properties.int import IntProperty
-from nio.metadata.properties.string import StringProperty
-from nio.common.discovery import Discoverable, DiscoverableType
-from nio.modules.threading import Thread
+from nio.block.terminals import output
+from nio.block.base import Block
+from nio.signal.base import Signal
+from nio.properties.int import IntProperty
+from nio.properties.string import StringProperty
+from nio.util.discovery import discoverable
+from threading import Thread
 
 from . import oid_parser
 
 
-@Output("trap")
-@Discoverable(DiscoverableType.block)
+@output("trap")
+@discoverable
 class SNMPTrap(Block):
 
     ip_address = StringProperty(title='IP Address', default='127.0.0.1')
@@ -42,16 +42,16 @@ class SNMPTrap(Block):
         # UDP/IPv4
         self._transport_dispatcher.registerTransport(
             udp.domainName, udp.UdpSocketTransport().openServerMode(
-                (self.ip_address, self.port)))
+                (self.ip_address(), self.port())))
         # UDP/IPv6
         self._transport_dispatcher.registerTransport(
             udp6.domainName, udp6.Udp6SocketTransport().openServerMode(
-                ('::1', self.port)))
+                ('::1', self.port())))
 
     def start(self):
         super().start()
         self._dispatcher_thread = \
-            TrapDispatcherThread(self._transport_dispatcher, self._logger)
+            TrapDispatcherThread(self._transport_dispatcher, self.logger)
         self._dispatcher_thread.start()
 
     def stop(self):
@@ -66,7 +66,7 @@ class SNMPTrap(Block):
                  transport_address, whole_msg):
         """ This method is called from pysnmp whenever a trap is received
         """
-        self._logger.debug('Trap received')
+        self.logger.debug('Trap received')
         signals = []
         while whole_msg:
             signal_data = {}
@@ -74,12 +74,12 @@ class SNMPTrap(Block):
             if msg_ver in api.protoModules:
                 p_mod = api.protoModules[msg_ver]
             else:
-                self._logger.warning('Unsupported SNMP version %s' % msg_ver)
+                self.logger.warning('Unsupported SNMP version %s' % msg_ver)
                 return
             req_msg, whole_msg = decoder.decode(
                 whole_msg, asn1Spec=p_mod.Message(),)
 
-            self._logger.info('Notification message from %s:%s: ' % (
+            self.logger.info('Notification message from %s:%s: ' % (
                 transport_domain, transport_address))
             signal_data["transport_domain"] = \
                 str(oid_parser(transport_domain))
@@ -143,7 +143,7 @@ class TrapDispatcherThread(Thread):
     def __init__(self, transport_dispatcher, logger):
         super().__init__()
         self._transport_dispatcher = transport_dispatcher
-        self._logger = logger
+        self.logger = logger
         self.daemon = True
 
     def run(self):
@@ -160,4 +160,4 @@ class TrapDispatcherThread(Thread):
         except KeyboardInterrupt:
             self._transport_dispatcher.closeDispatcher()
         except Exception:
-            self._logger.exception("Dispatcher exception")
+            self.logger.exception("Dispatcher exception")

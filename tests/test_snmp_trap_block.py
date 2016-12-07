@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 from pysnmp.proto.error import ProtocolError
-from nio.util.support.block_test_case import NIOBlockTestCase
+from nio.testing.block_test_case import NIOBlockTestCase
 from ..snmp_trap_block import SNMPTrap, TrapDispatcherThread
 
 
@@ -10,8 +10,8 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
         block = SNMPTrap()
         self.assertIsNone(block._transport_dispatcher)
         self.assertIsNone(block._dispatcher_thread)
-        self.assertEqual("127.0.0.1",block.ip_address)
-        self.assertEqual(162,block.port)
+        self.assertEqual("127.0.0.1", block.ip_address())
+        self.assertEqual(162, block.port())
 
     def test_configure(self):
         block = SNMPTrap()
@@ -22,8 +22,8 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
             "port": 9999})
         self.assertIsNotNone(block._transport_dispatcher)
         self.assertIsNone(block._dispatcher_thread)
-        self.assertEqual(block.ip_address, "10.0.0.1")
-        self.assertEqual(block.port, 9999)
+        self.assertEqual(block.ip_address(), "10.0.0.1")
+        self.assertEqual(block.port(), 9999)
         block._register_transports.assert_called_once()
 
     @patch(SNMPTrap.__module__ + '.TrapDispatcherThread')

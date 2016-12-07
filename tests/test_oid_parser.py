@@ -1,4 +1,4 @@
-from nio.util.support.block_test_case import NIOBlockTestCase
+from nio.testing.block_test_case import NIOBlockTestCase
 from .. import oid_parser
 
 

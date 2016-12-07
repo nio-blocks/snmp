@@ -1,17 +1,14 @@
+from nio.util.discovery import not_discoverable
 from pysnmp.entity.rfc3413.oneliner import cmdgen
-from nio.common.block.base import Block
-from nio.common.signal.base import Signal
-from nio.metadata.properties import TimeDeltaProperty, BoolProperty, \
-    ListProperty, IntProperty, StringProperty, \
-    ExpressionProperty, PropertyHolder
-from .mixins.limit_lock.limit_lock import LimitLock
+from nio.block.base import Block
+from nio.signal.base import Signal
+from nio.properties import TimeDeltaProperty, BoolProperty, \
+    ListProperty, IntProperty, Property, PropertyHolder
+from nio.block.mixins.limit_lock.limit_lock import LimitLock
 
 
 class OIDProperty(PropertyHolder):
-    oid = ExpressionProperty(
-        title='OID',
-        default='{{ $oid }}',
-        attr_default=AttributeError)
+    oid = Property(title='OID', default='{{ $oid }}')
 
 
 class SNMPStatusException(Exception):
@@ -24,6 +21,7 @@ class SNMPException(Exception):
     pass
 
 
+@not_discoverable
 class SNMPBase(LimitLock, Block):
 
     """ A base block implementing a SNMP Manager
@@ -32,8 +30,8 @@ class SNMPBase(LimitLock, Block):
     publish them as signals
     """
 
-    agent_host = ExpressionProperty(title="SNMP Agent Url", default='127.0.0.1')
-    agent_port = ExpressionProperty(title="SNMP Agent Port", default='161')
+    agent_host = Property(title="SNMP Agent Url", default='127.0.0.1')
+    agent_port = Property(title="SNMP Agent Port", default='161')
     timeout = TimeDeltaProperty(title='Request Timeout',
                                 default={"seconds": 1})
     retries = IntProperty(title="SNMP Retries", default=5)
@@ -41,7 +39,7 @@ class SNMPBase(LimitLock, Block):
         title="Exclude Existing Values", default=False)
     lookup_names = BoolProperty(title="Look up OID names", default=False)
     lookup_values = BoolProperty(title="Look up OID values", default=False)
-    oids = ListProperty(OIDProperty, title="List of OID")
+    oids = ListProperty(OIDProperty, title="List of OID", default=[])
 
     def __init__(self):
         super().__init__()
@@ -59,7 +57,7 @@ class SNMPBase(LimitLock, Block):
     def process_signals(self, signals, input_id='default'):
         for signal in signals:
             try:
-                self._execute_with_lock(
+                self.execute_with_lock(
                     self._process_signal, 20, signal=signal)
             except:
                 # Exceptions are already logged inside _process_signal
@@ -68,12 +66,12 @@ class SNMPBase(LimitLock, Block):
 
     def _process_signal(self, signal):
         valid_oids = []
-        for oid in self.oids:
+        for oid in self.oids():
             try:
                 next_oid = oid.oid(signal)
                 valid_oids.append(next_oid)
             except:
-                self._logger.exception(
+                self.logger.exception(
                     "Could not determine OID from {}".format(oid))
         transport = None
         try:
@@ -81,13 +79,13 @@ class SNMPBase(LimitLock, Block):
             port = int(self.agent_port(signal))
             transport = cmdgen.UdpTransportTarget(
                 (host, port),
-                timeout=self.timeout.total_seconds(),
-                retries=self.retries)
+                timeout=self.timeout().total_seconds(),
+                retries=self.retries())
         except:
-            self._logger.exception(
+            self.logger.exception(
                 "Could not determine transport for signal: {}".format(signal))
             return
-        starting_signal = None if self.exclude_existing else signal
+        starting_signal = None if self.exclude_existing() else signal
         if transport and valid_oids:
             self.execute_request(transport, valid_oids, starting_signal)
 
@@ -95,22 +93,22 @@ class SNMPBase(LimitLock, Block):
         """ Executes SNMP GET request
         """
         try:
-            self._logger.debug("Make snmp request: {}".format(transport))
+            self.logger.debug("Make snmp request: {}".format(transport))
             result = self._make_snmp_request(transport, oids)
-            self._logger.debug("Handle snmp response: {}".format(result))
+            self.logger.debug("Handle snmp response: {}".format(result))
             if starting_signal:
                 self._handle_data(result, starting_signal)
             else:
                 self._handle_data(result, Signal())
         except SNMPStatusException:
             # TODO: Make this output on status ouptut
-            self._logger.exception("Error status returned for transport:"
+            self.logger.exception("Error status returned for transport:"
                                    " {}".format(transport))
         except SNMPException:
-            self._logger.exception("Error returned"
+            self.logger.exception("Error returned"
                                    " {}".format(transport))
         except:
-            self._logger.exception("Unexpected exception in SNMP"
+            self.logger.exception("Unexpected exception in SNMP"
                                    " {}".format(transport))
 
     def _create_data(self):
