@@ -58,7 +58,7 @@ Output
   {'SNMPv2-MIB::sysDescr."0"': "b'SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'"}
   ```
 
-----------------
+***
 
 SNMPTrap
 ========

@@ -1,0 +1,93 @@
+{
+  "nio/SNMPWalk": {
+    "Miscellaneous": {
+      "```": "SNMPWalk"
+    },
+    "Commands": {},
+    "Input": "",
+    "Dependencies": [
+      "-   [pysnmp](https://pypi.python.org/pypi/pysnmp/)",
+      "-   pysnmp n.io module"
+    ],
+    "Description": "This block provides a SNMP walker than runs inside nio.",
+    "Category": "Communication",
+    "Properties": {
+      "agent_host": {
+        "description": "The host IP for the SNMP Agent to which this manager will connect. Defaults to `127.0.0.1`."
+      },
+      "retries": {
+        "description": "Number of retries when executing a SNMP GET. Defaults to `5`"
+      },
+      "community": {
+        "description": "SNMP community. Defaults to `public`."
+      },
+      "lookup_values": {
+        "description": "Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to `False`"
+      },
+      "exclude_existing": {
+        "description": "Exclude existing values."
+      },
+      "timeout": {
+        "description": "Timeout when executing a SNMP GET. Defaults to `1` second"
+      },
+      "lookup_names": {
+        "description": "Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to `False`"
+      },
+      "agent_port": {
+        "description": "The desired port for the Agent. Defaults to `161`"
+      },
+      "oids": {
+        "description": "List of oids . Example `[\"1.3.6.1.2.1.31.1.1.1.10.2\", \"1.3.6.1.2.1.31.1.1.1.6.2\"]`"
+      },
+      "snmp_version": {
+        "description": "SNMP v1 or v2."
+      }
+    },
+    "Version": "1.0.0",
+    "Output": "TODO: Document signal output of this block."
+  },
+  "nio/SNMPGet": {
+    "Commands": {},
+    "Input": "",
+    "Dependencies": [
+      "-   [pysnmp](https://pypi.python.org/pypi/pysnmp/)",
+      "-   pysnmp n.io module"
+    ],
+    "Category": "Communication",
+    "Description": "This block provides a SNMP Manager that runs inside nio.",
+    "Properties": {
+      "agent_host": {
+        "description": "The host IP for the SNMP Agent to which this manager will connect. Defaults to `127.0.0.1`."
+      },
+      "retries": {
+        "description": "Number of retries when executing a SNMP GET. Defaults to `5`"
+      },
+      "community": {
+        "description": "SNMP community. Defaults to `public`."
+      },
+      "lookup_values": {
+        "description": "Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to `False`"
+      },
+      "exclude_existing": {
+        "description": "Exclude existing values."
+      },
+      "timeout": {
+        "description": "Timeout when executing a SNMP GET. Defaults to `1` second"
+      },
+      "lookup_names": {
+        "description": "Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to `False`"
+      },
+      "agent_port": {
+        "description": "The desired port for the Agent. Defaults to `161`"
+      },
+      "oids": {
+        "description": "List of oids . Example `[\"1.3.6.1.2.1.31.1.1.1.10.2\", \"1.3.6.1.2.1.31.1.1.1.6.2\"]`"
+      },
+      "snmp_version": {
+        "description": "SNMP v1 or v2."
+      }
+    },
+    "Version": "1.0.0",
+    "Output": "Signals with data attributes containing results of SNMP GET\nExample of Signals:\n**With Error**:\n```\n{ \"error\": \"No response received\" }\n```\n**Without lookup**:\n```\n{'1.3.6.1.2.1.1.1.0': \"b'SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'\"}\n```\n**With lookup**:\n```\n{'SNMPv2-SMI::mib-2.\"31.1.1.1.6.2\"': '227651521193'}\n{'SNMPv2-MIB::sysDescr.\"0\"': \"b'SunOS zeus.snmplabs.com 4.1.3_U1 1 sun4m'\"}\n```"
+  }
+}
