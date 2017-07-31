@@ -24,7 +24,7 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
         self.assertIsNone(block._dispatcher_thread)
         self.assertEqual(block.ip_address(), "10.0.0.1")
         self.assertEqual(block.port(), 9999)
-        block._register_transports.assert_called_once()
+        self.assertEqual(block._register_transports.call_count, 1)
 
     @patch(SNMPTrap.__module__ + '.TrapDispatcherThread')
     def test_start_stop(self, thread_mock):
@@ -56,31 +56,31 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
         """
 
         block = SNMPTrap()
-        block._on_trap(None, (1,3,6,1,1), ('127.0.0.1', 49999), None)
+        block._on_trap(None, (1, 3, 6, 1, 1), ('127.0.0.1', 49999), None)
         self.assert_num_signals_notified(0, block, "trap")
 
         with self.assertRaises(ProtocolError):
-            block._on_trap(None, (1,3,6,1,1), ('127.0.0.1', 49999), "trash")
+            block._on_trap(None, (1, 3, 6, 1, 1), ('127.0.0.1', 49999),
+                           "trash")
         self.assert_num_signals_notified(0, block, "trap")
 
         # use valid data
         msg = b'0Y\x02\x01\x01\x04\x06public\xa7L\x02\x04\x00\xb7\x19\x89\x02\x01\x00\x02\x01\x000>0\r\x06\x08+\x06\x01\x02\x01\x01\x03\x00C\x01\x000\x17\x06\n+\x06\x01\x06\x03\x01\x01\x04\x01\x00\x06\t+\x06\x01\x06\x03\x01\x01\x05\x010\x14\x06\x08+\x06\x01\x02\x01\x01\x05\x00\x04\x08new name'
         # attempt to deliver signal since it throws a block router exception
         with self.assertRaises(AttributeError):
-            block._on_trap(None, (1,3,6,1,1), ('127.0.0.1', 49999), msg)
+            block._on_trap(None, (1, 3, 6, 1, 1), ('127.0.0.1', 49999), msg)
         self.assert_num_signals_notified(0, block, "trap")
 
         # mock transport settings
         block._register_transports = MagicMock()
         self.configure_block(block, {})
         # assert that a signal was notified on 'trap' output
-        block._on_trap(None, (1,3,6,1,1), ('127.0.0.1', 49999), msg)
+        block._on_trap(None, (1, 3, 6, 1, 1), ('127.0.0.1', 49999), msg)
         self.assert_num_signals_notified(1, block, "trap")
 
     def test_var_bind_data(self):
         """ Provides coverage for _get_var_bind_data method
         """
-
         block = SNMPTrap()
 
         from pysnmp.proto.rfc1905 import _BindValue
