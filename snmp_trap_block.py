@@ -103,7 +103,9 @@ class SNMPTrap(Block):
                 else:
                     var_binds = p_mod.apiPDU.getVarBindList(req_pdu)
                 signal_data["var-binds"] = {}
-                for oid, val in var_binds:
+                for item in var_binds:
+                    oid = item[0]
+                    val = item[1]
                     signal_data["var-binds"][str(oid_parser(oid._value))] = \
                         self._get_var_bind_data(val)
             signals.append(Signal(signal_data))
