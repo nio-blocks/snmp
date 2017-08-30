@@ -1,12 +1,17 @@
 {
   "nio/SNMPGet": {
     "language": "Python",
-    "version": "0.0.1",
-    "url": "git://github.com/nio-blocks/snmp.git"
+    "url": "git://github.com/nio-blocks/snmp.git",
+    "version": "0.4.0"
+  },
+  "nio/SNMPTrap": {
+    "language": "Python",
+    "url": "git://github.com/nio-blocks/snmp.git",
+    "version": "0.4.0"
   },
   "nio/SNMPWalk": {
     "language": "Python",
-    "version": "0.0.1",
-    "url": "git://github.com/nio-blocks/snmp.git"
+    "url": "git://github.com/nio-blocks/snmp.git",
+    "version": "0.4.0"
   }
 }
