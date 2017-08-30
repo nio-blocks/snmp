@@ -1,8 +1,3 @@
-"""
-
-  SNMP Trap Block
-
-"""
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp, udp6
 from pyasn1.codec.ber import decoder
@@ -11,20 +6,18 @@ from pysnmp.proto import api
 from nio.block.terminals import output
 from nio.block.base import Block
 from nio.signal.base import Signal
-from nio.properties.int import IntProperty
-from nio.properties.string import StringProperty
-from nio.util.discovery import discoverable
+from nio.properties import IntProperty, StringProperty, VersionProperty
 from threading import Thread
 
 from . import oid_parser
 
 
 @output("trap")
-@discoverable
 class SNMPTrap(Block):
 
     ip_address = StringProperty(title='IP Address', default='127.0.0.1')
     port = IntProperty(title='Port', default=162)
+    version = VersionProperty('0.4.0')
 
     def __init__(self):
         super().__init__()

@@ -102,14 +102,14 @@ class SNMPBase(LimitLock, Block):
                 self._handle_data(result, Signal())
         except SNMPStatusException:
             # TODO: Make this output on status ouptut
-            self.logger.exception("Error status returned for transport:"
-                                   " {}".format(transport))
+            self.logger.exception(
+                "Error status returned for transport: {}".format(transport))
         except SNMPException:
-            self.logger.exception("Error returned"
-                                   " {}".format(transport))
+            self.logger.exception(
+                "Error returned {}".format(transport))
         except:
-            self.logger.exception("Unexpected exception in SNMP"
-                                   " {}".format(transport))
+            self.logger.exception(
+                "Unexpected exception in SNMP {}".format(transport))
 
     def _create_data(self):
         """ Method to be override in inherited classes

@@ -1,18 +1,189 @@
 {
   "nio/SNMPGet": {
-    "version": "0.0.1",
-    "description": "",
-    "inputs": {},
-    "outputs": {},
-    "properties": {},
+    "version": "0.4.0",
+    "description": "This block provides a SNMP Manager that runs inside nio.",
+    "properties": {
+      "agent_host": {
+        "title": "SNMP Agent Url",
+        "type": "Type",
+        "description": "The host IP for the SNMP Agent to which this manager will connect. Defaults to `127.0.0.1`.",
+        "default": "127.0.0.1"
+      },
+      "agent_port": {
+        "title": "SNMP Agent Port",
+        "type": "Type",
+        "description": "The desired port for the Agent. Defaults to `161`",
+        "default": "161"
+      },
+      "community": {
+        "title": "Community",
+        "type": "StringType",
+        "description": "SNMP community. Defaults to `public`.",
+        "default": "public"
+      },
+      "exclude_existing": {
+        "title": "Exclude Existing Values",
+        "type": "BoolType",
+        "description": "If false, the original input signal attributes will be included in the output signal.",
+        "default": false
+      },
+      "lookup_names": {
+        "title": "Look up OID names",
+        "type": "BoolType",
+        "description": "Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to `False`",
+        "default": false
+      },
+      "lookup_values": {
+        "title": "Look up OID values",
+        "type": "BoolType",
+        "description": "Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to `False`",
+        "default": false
+      },
+      "oids": {
+        "title": "List of OID",
+        "type": "ListType",
+        "description": "List of oids . Example `['1.3.6.1.2.1.31.1.1.1.10.2', '1.3.6.1.2.1.31.1.1.1.6.2']`",
+        "default": []
+      },
+      "retries": {
+        "title": "SNMP Retries",
+        "type": "IntType",
+        "description": "Number of retries when executing a SNMP GET. Defaults to `5`",
+        "default": 5
+      },
+      "snmp_version": {
+        "title": "SNMP version",
+        "type": "SelectType",
+        "description": "SNMP v1 or v2.",
+        "default": 1
+      },
+      "timeout": {
+        "title": "Request Timeout",
+        "type": "TimeDeltaType",
+        "description": "Timeout when executing a SNMP GET. Defaults to `1` second",
+        "default": {
+          "seconds": 1
+        }
+      }
+    },
+    "inputs": {
+      "default": {
+        "description": "Any list of signals."
+      }
+    },
+    "outputs": {
+      "default": {
+        "description": "Signals with data attributes containing results of SNMP GET"
+      }
+    },
+    "commands": {}
+  },
+  "nio/SNMPTrap": {
+    "version": "0.4.0",
+    "description": "This block provides a SNMP Trap catcher that runs inside nio.",
+    "properties": {
+      "ip_address": {
+        "title": "IP Address",
+        "type": "StringType",
+        "description": "The IP address this block binds to, this address will be used by Agent to send traps to. Defaults to `127.0.0.1`.",
+        "default": "127.0.0.1"
+      },
+      "port": {
+        "title": "Port",
+        "type": "IntType",
+        "description": "The port Agent will be connecting to. Defaults to `162`",
+        "default": 162
+      }
+    },
+    "inputs": {
+      "default": {
+        "description": "Any list of signals."
+      }
+    },
+    "outputs": {
+      "trap": {
+        "description": "Signals with trap data attributes."
+      }
+    },
     "commands": {}
   },
   "nio/SNMPWalk": {
-    "version": "0.0.1",
-    "description": "",
-    "inputs": {},
-    "outputs": {},
-    "properties": {},
+    "version": "0.4.0",
+    "description": "This block provides a SNMP walker than runs inside nio.",
+    "properties": {
+      "agent_host": {
+        "title": "SNMP Agent Url",
+        "type": "Type",
+        "description": "The host IP for the SNMP Agent to which this manager will connect. Defaults to `127.0.0.1`.",
+        "default": "127.0.0.1"
+      },
+      "agent_port": {
+        "title": "SNMP Agent Port",
+        "type": "Type",
+        "description": "The desired port for the Agent. Defaults to `161`.",
+        "default": "161"
+      },
+      "community": {
+        "title": "Community",
+        "type": "StringType",
+        "description": "SNMP community. Defaults to `public`.",
+        "default": "public"
+      },
+      "exclude_existing": {
+        "title": "Exclude Existing Values",
+        "type": "BoolType",
+        "description": "If false, the original input signal attributes will be included in the output signal.",
+        "default": false
+      },
+      "lookup_names": {
+        "title": "Look up OID names",
+        "type": "BoolType",
+        "description": "Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to `False`.",
+        "default": false
+      },
+      "lookup_values": {
+        "title": "Look up OID values",
+        "type": "BoolType",
+        "description": "Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to `False`",
+        "default": false
+      },
+      "oids": {
+        "title": "List of OID",
+        "type": "ListType",
+        "description": "List of oids . Example `['1.3.6.1.2.1.31.1.1.1.10.2', '1.3.6.1.2.1.31.1.1.1.6.2']`",
+        "default": []
+      },
+      "retries": {
+        "title": "SNMP Retries",
+        "type": "IntType",
+        "description": "Number of retries when executing a SNMP GET. Defaults to `5`",
+        "default": 5
+      },
+      "snmp_version": {
+        "title": "SNMP version",
+        "type": "SelectType",
+        "description": "SNMP v1 or v2.",
+        "default": 1
+      },
+      "timeout": {
+        "title": "Request Timeout",
+        "type": "TimeDeltaType",
+        "description": "Timeout when executing a SNMP GET. Defaults to `1` second.",
+        "default": {
+          "seconds": 1
+        }
+      }
+    },
+    "inputs": {
+      "default": {
+        "description": "Any list of signals."
+      }
+    },
+    "outputs": {
+      "default": {
+        "description": "Signals with walk data attributes."
+      }
+    },
     "commands": {}
   }
 }

@@ -13,4 +13,3 @@ class Test_OID_Parser(NIOBlockTestCase):
     def test_invalid_oids(self):
         self.assertFalse(oid_parser.validate((1, 3, "invalid", 4, 5, 6)))
         self.assertFalse(oid_parser.validate("not a tuple"))
-
