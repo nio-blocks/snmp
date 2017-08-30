@@ -60,8 +60,8 @@ class TestSNMPTrapBlock(NIOBlockTestCase):
         self.assert_num_signals_notified(0, block, "trap")
 
         with self.assertRaises(ProtocolError):
-            block._on_trap(None, (1, 3, 6, 1, 1), ('127.0.0.1', 49999),
-                           "trash")
+            block._on_trap(
+                None, (1, 3, 6, 1, 1), ('127.0.0.1', 49999), "trash")
         self.assert_num_signals_notified(0, block, "trap")
 
         # use valid data
