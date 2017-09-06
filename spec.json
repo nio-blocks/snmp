@@ -2,6 +2,10 @@
   "nio/SNMPGet": {
     "version": "0.4.0",
     "description": "This block provides a SNMP Manager that runs inside nio.",
+    "categories": [
+      "Communication",
+      "Hardware"
+    ],
     "properties": {
       "agent_host": {
         "title": "SNMP Agent Url",
@@ -81,6 +85,9 @@
   "nio/SNMPTrap": {
     "version": "0.4.0",
     "description": "This block provides a SNMP Trap catcher that runs inside nio.",
+    "categories": [
+      "Communication"
+    ],
     "properties": {
       "ip_address": {
         "title": "IP Address",
@@ -110,6 +117,9 @@
   "nio/SNMPWalk": {
     "version": "0.4.0",
     "description": "This block provides a SNMP walker than runs inside nio.",
+    "categories": [
+      "Communication"
+    ],
     "properties": {
       "agent_host": {
         "title": "SNMP Agent Url",
