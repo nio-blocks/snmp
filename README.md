@@ -7,7 +7,7 @@ Properties
 - **agent_host**: The host IP for the SNMP Agent to which this manager will connect. Defaults to `127.0.0.1`.
 - **agent_port**: The desired port for the Agent. Defaults to `161`.
 - **community**: SNMP community. Defaults to `public`.
-- **exclude_existing**: If 'False', the original input signal attributes will be included in the output signal.
+- **exclude_existing**: If `False`, the original input signal attributes will be included in the output signal.
 - **lookup_names**: Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to `False`.
 - **lookup_values**: Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to `False`.
 - **oids**: List of oids . Example `['1.3.6.1.2.1.31.1.1.1.10.2', '1.3.6.1.2.1.31.1.1.1.6.2']`.
