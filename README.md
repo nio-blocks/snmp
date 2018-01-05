@@ -5,15 +5,15 @@ This block provides a SNMP Manager that runs inside nio.
 Properties
 ----------
 - **agent_host**: The host IP for the SNMP Agent to which this manager will connect. Defaults to `127.0.0.1`.
-- **agent_port**: The desired port for the Agent. Defaults to `161`
+- **agent_port**: The desired port for the Agent. Defaults to `161`.
 - **community**: SNMP community. Defaults to `public`.
-- **exclude_existing**: If false, the original input signal attributes will be included in the output signal.
-- **lookup_names**: Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to `False`
-- **lookup_values**: Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to `False`
-- **oids**: List of oids . Example `['1.3.6.1.2.1.31.1.1.1.10.2', '1.3.6.1.2.1.31.1.1.1.6.2']`
-- **retries**: Number of retries when executing a SNMP GET. Defaults to `5`
+- **exclude_existing**: If 'False', the original input signal attributes will be included in the output signal.
+- **lookup_names**: Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to `False`.
+- **lookup_values**: Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to `False`.
+- **oids**: List of oids . Example `['1.3.6.1.2.1.31.1.1.1.10.2', '1.3.6.1.2.1.31.1.1.1.6.2']`.
+- **retries**: Number of retries when executing a SNMP GET. Defaults to `5`.
 - **snmp_version**: SNMP v1 or v2.
-- **timeout**: Timeout when executing a SNMP GET. Defaults to `1` second
+- **timeout**: Timeout when executing a SNMP GET. Defaults to `1` second.
 
 Inputs
 ------
@@ -21,7 +21,7 @@ Inputs
 
 Outputs
 -------
-- **default**: Signals with data attributes containing results of SNMP GET
+- **default**: Signals with data attributes containing results of SNMP GET.
 
 Commands
 --------
@@ -55,7 +55,7 @@ This block provides a SNMP Trap catcher that runs inside nio.
 Properties
 ----------
 - **ip_address**: The IP address this block binds to, this address will be used by Agent to send traps to. Defaults to `127.0.0.1`.
-- **port**: The port Agent will be connecting to. Defaults to `162`
+- **port**: The port Agent will be connecting to. Defaults to `162`.
 
 Inputs
 ------
@@ -124,9 +124,9 @@ Properties
 - **community**: SNMP community. Defaults to `public`.
 - **exclude_existing**: If false, the original input signal attributes will be included in the output signal.
 - **lookup_names**: Lookup names when executing a SNMP GET. Converts to human readable string. Defaults to `False`.
-- **lookup_values**: Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to `False`
-- **oids**: List of oids . Example `['1.3.6.1.2.1.31.1.1.1.10.2', '1.3.6.1.2.1.31.1.1.1.6.2']`
-- **retries**: Number of retries when executing a SNMP GET. Defaults to `5`
+- **lookup_values**: Lookup values when executing a SNMP GET. Converts to human readable string. Defaults to `False`.
+- **oids**: List of oids . Example `['1.3.6.1.2.1.31.1.1.1.10.2', '1.3.6.1.2.1.31.1.1.1.6.2']`.
+- **retries**: Number of retries when executing a SNMP GET. Defaults to `5`.
 - **snmp_version**: SNMP v1 or v2.
 - **timeout**: Timeout when executing a SNMP GET. Defaults to `1` second.
 
