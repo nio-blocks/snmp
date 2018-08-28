@@ -140,11 +140,13 @@ class TrapDispatcherThread(Thread):
         self._transport_dispatcher = transport_dispatcher
         self.logger = logger
         self.daemon = True
+        self._run = True
 
     def run(self):
         self._serve_forever()
 
     def stop(self):
+        self._run = False
         self._transport_dispatcher.closeDispatcher()
         self._transport_dispatcher.jobFinished(1)
 
@@ -152,7 +154,8 @@ class TrapDispatcherThread(Thread):
         self._transport_dispatcher.jobStarted(1)
         try:
             self._transport_dispatcher.runDispatcher()
-        except KeyboardInterrupt:
-            self._transport_dispatcher.closeDispatcher()
-        except Exception:
-            self.logger.exception("Dispatcher exception")
+        except:
+            if self._run:
+                self.logger.exception("Dispatcher exception")
+            else:
+                self._transport_dispatcher.closeDispatcher()
